@@ -10,7 +10,8 @@ interface DataService {
     @GET("/v1/gifs/trending") //для популярных
 
     fun getGifs(@Query("limit") limit: Int,
-                @Query("api_key") key: String)//Ключ
+                @Query("api_key") key: String, //Ключ
+                @Query("offset") start: Int)
             : retrofit2.Call<DataResult>
     @GET("/v1/gifs/search") //для поиска
     fun searchGifs(@Query("q") search: String,
