@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.ProgressBar
 import android.widget.SearchView
 import android.widget.Toast
@@ -33,6 +34,7 @@ class MainFragment : Fragment() {
     private lateinit var gifs: MutableList<DataObject>
     private lateinit var load: ProgressBar
     private lateinit var gridLayoutManager: GridLayoutManager
+    private lateinit var btn: Button
 
 
 
@@ -46,6 +48,7 @@ class MainFragment : Fragment() {
         val layoutManager = LinearLayoutManager(context)
         load = view.findViewById(R.id.pg)
         load.visibility = View.GONE;
+        btn = view.findViewById(R.id.btn)
         recyclerView = view.findViewById(R.id.rcView)
 
         gifs = mutableListOf<DataObject>()
@@ -70,11 +73,9 @@ class MainFragment : Fragment() {
         val retroService = retrofit.create(DataService::class.java)
 
         var start = 0
-        var isLoading = false
 
         fun getTrend() {
-            isLoading = true
-            load.visibility = View.VISIBLE;
+            load.visibility = View.VISIBLE
 
             retroService.getGifs(LIMIT, API, start).enqueue(object : Callback<DataResult?> {
                 override fun onResponse(call: Call<DataResult?>, response: Response<DataResult?>) {
@@ -82,8 +83,8 @@ class MainFragment : Fragment() {
 
                     gifs.addAll(body!!.res)
                     adapter.notifyDataSetChanged()
-                    load.visibility = View.GONE;
-                    isLoading = false
+                    load.visibility = View.GONE
+
                 }
 
 
@@ -131,20 +132,24 @@ class MainFragment : Fragment() {
 
 
         recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
 
-                //if (dy > 0) {
-                    val visibleItemCount = gridLayoutManager.childCount
-                    val pastVisibleItem = gridLayoutManager.findFirstCompletelyVisibleItemPosition()
-                    val total = adapter.itemCount
 
-                    if (!isLoading) {
-                        if ((visibleItemCount + pastVisibleItem) >= total) {
-                            getTrend()
-                            start += LIMIT
-                        }
+                val visibleItemCount = gridLayoutManager.childCount
+                val pastVisibleItem = gridLayoutManager.findFirstCompletelyVisibleItemPosition()
+                val total = adapter.itemCount
+
+
+                btn.setOnClickListener() {
+                    if ((visibleItemCount + pastVisibleItem) >= total) {
+                        getTrend()
+                        start += LIMIT
                     }
-               // }
+                    else {
+                        Toast.makeText(context, "You haven't checked all gifs!", Toast.LENGTH_SHORT).show();
+                    }
+                }
 
                 super.onScrolled(recyclerView, dx, dy)
             }
