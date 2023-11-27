@@ -5,16 +5,17 @@ import retrofit2.http.Query
 
 interface DataService {
 
-    //@GET("gifs/trending?api_key=$api")
-
-    @GET("/v1/gifs/trending") //для популярных
+    @GET("/v1/gifs/trending")
 
     fun getGifs(@Query("limit") limit: Int,
-                @Query("api_key") key: String, //Ключ
+                @Query("api_key") key: String,
                 @Query("offset") start: Int)
             : retrofit2.Call<DataResult>
-    @GET("/v1/gifs/search") //для поиска
+    @GET("/v1/gifs/search")
     fun searchGifs(@Query("q") search: String,
                    @Query("limit") limit: Int,
-                   @Query("api_key") key: String): retrofit2.Call<DataResult>
+                   @Query("api_key") key: String,
+                   @Query("offset") start: Int)
+            : retrofit2.Call<DataResult>
+
 }

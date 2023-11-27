@@ -24,25 +24,15 @@ class MainActivity : AppCompatActivity() {
 
         val mainLayout = findViewById<View>(R.id.mainLayout) as ConstraintLayout
 
-        if (haveNetwork()) {
-            val snackbar = Snackbar.make(mainLayout, "Internet found!", Snackbar.LENGTH_INDEFINITE)
-            snackbar.duration = 1000
-            snackbar.show()
-
-        }
-        else {
+        if (!haveNetwork()) {
             val builder = AlertDialog.Builder(this@MainActivity)
             builder.setTitle("Network error")
             builder.setMessage("Internet not found!")
             builder.setNegativeButton("Okay") {dialogInerface, i-> finish()}
             builder.setPositiveButton("Try again") {dialogInterface, i-> restartApp()}
             builder.show()
+
         }
-
-        /*bindingClass.img.setOnClickListener() {
-            replaceFragment(InFragment.newInstance())
-        } ????????? */
-
     }
 
     private fun haveNetwork(): Boolean {

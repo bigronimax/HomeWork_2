@@ -44,7 +44,6 @@ class MainFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        //init()
         val layoutManager = LinearLayoutManager(context)
         load = view.findViewById(R.id.pg)
         load.visibility = View.GONE;
@@ -73,10 +72,12 @@ class MainFragment : Fragment() {
         val retroService = retrofit.create(DataService::class.java)
 
         var start = 0
+        var search = false
+        var req = ""
 
         fun getTrend() {
-            load.visibility = View.VISIBLE
 
+            load.visibility = View.VISIBLE
             retroService.getGifs(LIMIT, API, start).enqueue(object : Callback<DataResult?> {
                 override fun onResponse(call: Call<DataResult?>, response: Response<DataResult?>) {
                     val body = response.body()
@@ -95,32 +96,48 @@ class MainFragment : Fragment() {
 
         }
 
-        fun GetSearch(query: String){
+        fun getSearch(query: String){
             load.visibility = View.VISIBLE;
-            retroService.searchGifs(query, LIMIT, API).enqueue(object : Callback<DataResult?>
+            retroService.searchGifs(query, LIMIT, API, start).enqueue(object : Callback<DataResult?>
             {
                 override fun onResponse(call: Call<DataResult?>, response: Response<DataResult?>)
                 {
-                    gifs.clear();//очищаем список
                     val body = response.body()
 
-                    gifs.addAll(body!!.res)//загружаем новые данные
+                    gifs.addAll(body!!.res)
                     adapter.notifyDataSetChanged()
-                    load.visibility = View.GONE;
+                    load.visibility = View.GONE
                 }
 
                 override fun onFailure(call: Call<DataResult?>, t: Throwable) {
                     Toast.makeText(context, "network failure :(", Toast.LENGTH_SHORT).show();
                 }
-            })}
+            })
+        }
 
         searchView = view.findViewById(R.id.sv)
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
 
             override fun onQueryTextSubmit(query: String): Boolean
             {
-                GetSearch(query) //вызываем функцию поиска, передаем "искомое" слово
-                return false
+                if (query != "trend") {
+                    gifs.clear()
+                    start = 0
+                    getSearch(query)
+                    start += LIMIT
+                    search = true
+                    req = query
+                    return false
+                }
+                else {
+                    gifs.clear()
+                    start = 0
+                    getTrend()
+                    start += LIMIT
+                    search = false
+                    return false
+                }
+
             }
             override fun onQueryTextChange(newText: String): Boolean {
                 return false
@@ -142,8 +159,12 @@ class MainFragment : Fragment() {
 
 
                 btn.setOnClickListener() {
-                    if ((visibleItemCount + pastVisibleItem) >= total) {
+                    if ((visibleItemCount + pastVisibleItem) >= total && !search) {
                         getTrend()
+                        start += LIMIT
+                    }
+                    else if ((visibleItemCount + pastVisibleItem) >= total && search) {
+                        getSearch(req)
                         start += LIMIT
                     }
                     else {
@@ -167,7 +188,7 @@ class MainFragment : Fragment() {
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        // outState.put("gifs", gifs) ???????????
+        
     }
 
 }
