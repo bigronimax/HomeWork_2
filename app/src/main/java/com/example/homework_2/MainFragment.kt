@@ -16,6 +16,7 @@ import android.widget.Toast
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.homework_2.databinding.ElemItemBinding
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -26,15 +27,17 @@ const val BASE_URL = "https://api.giphy.com/v1/"
 const val API = "F1lp9CrCgfCxEOMQN3Fdcw5sROer8RQB"
 const val LIMIT = 10
 
-class MainFragment : Fragment() {
+class MainFragment : Fragment(), GifsAdapter.IListener {
 
     private lateinit var adapter : GifsAdapter
+    private lateinit var holder: GifsAdapter.GifsHolder
     private lateinit var recyclerView: RecyclerView
     private lateinit var searchView: SearchView
     private lateinit var gifs: MutableList<DataObject>
     private lateinit var load: ProgressBar
     private lateinit var gridLayoutManager: GridLayoutManager
     private lateinit var btn: Button
+
 
 
 
@@ -51,10 +54,11 @@ class MainFragment : Fragment() {
         recyclerView = view.findViewById(R.id.rcView)
 
         gifs = mutableListOf<DataObject>()
-        adapter = GifsAdapter(this.requireContext(), gifs)
+        adapter = GifsAdapter(this.requireContext(), gifs, this)
 
         recyclerView.adapter = adapter
         recyclerView.setHasFixedSize(true)
+
 
 
 
@@ -155,7 +159,11 @@ class MainFragment : Fragment() {
 
                 val visibleItemCount = gridLayoutManager.childCount
                 val pastVisibleItem = gridLayoutManager.findFirstCompletelyVisibleItemPosition()
-                val total = adapter.itemCount
+                var total: Int
+                if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT)
+                     total = adapter.itemCount
+                else
+                    total = adapter.itemCount
 
 
                 btn.setOnClickListener() {
@@ -178,6 +186,16 @@ class MainFragment : Fragment() {
 
 
 
+    }
+
+    override fun open(item: DataObject) {
+        val fragment = InFragment.newInstance(item)
+
+        parentFragmentManager.beginTransaction().apply {
+            addToBackStack(null)
+            replace(R.id.frame_layout, fragment)
+            commit()
+        }
     }
 
     companion object {

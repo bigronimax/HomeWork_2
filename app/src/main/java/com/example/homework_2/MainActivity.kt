@@ -14,13 +14,11 @@ import com.google.android.material.snackbar.Snackbar
 
 class MainActivity : AppCompatActivity() {
 
-    lateinit var bindingClass: ElemItemBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         replaceFragment(MainFragment())
-
-        bindingClass = ElemItemBinding.inflate(layoutInflater)
 
         val mainLayout = findViewById<View>(R.id.mainLayout) as ConstraintLayout
 
